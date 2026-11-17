@@ -1,0 +1,11 @@
+{
+  "appId": "com.vocabularygames.app",
+  "appName": "Vocabulary Games",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
