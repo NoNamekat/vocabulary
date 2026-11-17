@@ -29,40 +29,44 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Instalar plataforma Android
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Criar o projeto Android (se ainda não existir)
-        run: '[ -d android ] || npx cap add android'
+      - name: Criar projeto Android
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
 
-      - name: Gerar ícones do app
+      - name: Gerar ícones
         continue-on-error: true
         run: npx capacitor-assets generate --android --assetPath assets
 
-      - name: Copiar o site para o Android
+      - name: Sincronizar Capacitor
         run: npx cap sync android
 
-      - name: Compilar o APK (debug)
+      - name: Compilar APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Renomear o APK
+      - name: Renomear APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk vocabulary-games.apk
 
-      - name: Guardar o APK como artefato
+      - name: Salvar APK
         uses: actions/upload-artifact@v4
         with:
           name: vocabulary-games-apk
           path: vocabulary-games.apk
 
-      - name: Publicar na aba Releases (apenas em tags v*)
+      - name: Publicar Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
